@@ -3,11 +3,11 @@ use nalgebra::{DVector, DMatrix};
 use super::activation::Activation;
 
 pub struct Layer {
-    weights_matrix_: DMatrix<f64>,
-    bias_vector_: DVector<f64>,
-    nodes_: DVector<f64>, // previous layer values
-    activation_function_: Activation,
-    computed_: DVector<f64>
+    pub weights_matrix_: DMatrix<f64>,
+    pub bias_vector_: DVector<f64>,
+    pub nodes_: DVector<f64>, // previous layer values
+    pub activation_function_: Activation,
+    pub computed_: DVector<f64>
 }
 
 impl Layer {
@@ -23,15 +23,26 @@ impl Layer {
         }
     }
 
+    pub fn input_layer(vec: DVector<f64>) -> Self{
+        Layer {
+            weights_matrix_: DMatrix::zeros(0, 0),
+            bias_vector_: DVector::zeros(0),
+            nodes_: DVector::zeros(0),
+            activation_function_: Activation::Input,
+            computed_: vec,
+        }
+    }
+
     /// z = W /cdot l_[n-1] + b
     /// a = g(z)
-    pub fn compute(mut self) {
-        let z = self.weights_matrix_.mul(&self.nodes_) + self.bias_vector_;
+    pub fn single_layer_forward_propogation(&mut self) {
+        let z = (&self.weights_matrix_).mul(&self.nodes_) + &self.bias_vector_;
         
         self.computed_ = match self.activation_function_ {
             Activation::Relu => z.map(|x: f64| {Activation::relu(x)}),
             Activation::Sigmoid => z.map(|x: f64| {Activation::sigmoid(x)}),
             Activation::Tanx => todo!(),
+            Activation::Input => todo!(),
         };
     }
 }
