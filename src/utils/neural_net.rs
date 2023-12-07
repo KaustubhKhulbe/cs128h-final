@@ -26,6 +26,12 @@ impl NeuralNetwork {
         }
     }
 
+    pub fn back_propogation(&mut self) {
+        for i in (2..self.layers.len()).rev() {
+            let _ = &self.layers[i].single_layer_back_propogation();
+        }
+    }
+
     pub fn print_network(&self) {
         for layer in &self.layers {
             println!("{}", layer.computed_);

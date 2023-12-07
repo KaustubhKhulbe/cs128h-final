@@ -7,7 +7,7 @@ pub struct Layer {
     pub bias_vector_: DVector<f64>,
     pub nodes_: DVector<f64>, // previous layer values
     pub activation_function_: Activation,
-    pub computed_: DVector<f64>
+    pub computed_: DVector<f64>,
 }
 
 impl Layer {
@@ -41,6 +41,57 @@ impl Layer {
         self.computed_ = match self.activation_function_ {
             Activation::Relu => z.map(|x: f64| {Activation::relu(x)}),
             Activation::Sigmoid => z.map(|x: f64| {Activation::sigmoid(x)}),
+            Activation::Tanx => todo!(),
+            Activation::Input => todo!(),
+        };
+    }
+
+    pub fn linear_back(&mut self) {
+        let a_prev = &self.nodes_;
+        let w = &self.weights_matrix_;
+        let b = &self.bias_vector_;
+
+        //let linear_cache = (a_prev, w, b);
+
+        println!("try");
+        // println!("computed{:?}", &self.computed_.shape());
+        // println!("w{:?}", w.shape());
+        // println!("a_prev{:?}", a_prev.shape());
+        // println!("computed transpose{:?}", &self.computed_.transpose().shape());
+        let m = a_prev.shape().1 as f64;
+        let dw = (1.0 / m) * (&self.computed_.dot(&a_prev));
+        // println!("finished dw");
+        let db = (1.0 / m) * &self.computed_.sum();
+        //let w_vec = w.clone().into_owned().reshape_generic(DMatrix::nrows(&w) * DMatrix::ncols(&w), 1);
+        // println!("w_vec{:?}", w_vec.shape());
+        // let da_prev = w_vec.dot(&self.computed_);
+        // println!("finished a_prev");
+
+        // let m = a_prev.shape().1 as f64;
+        // let dw = (1.0 / m) * (&self.computed_.dot(&a_prev));
+        // let db = (1.0 / m) * &self.computed_.sum();
+        // let da_prev = w.dot(&self.computed_);
+
+        self.weights_matrix_ = self.weights_matrix_.add_scalar(&dw*(-0.1));
+        self.bias_vector_ = self.bias_vector_.add_scalar(&db*(-0.1));
+        //self.nodes_ = self.nodes_.add_scalar(&da_prev*(-0.1));
+    }
+
+    pub fn single_layer_back_propogation(&mut self) {
+        let _ = &self.linear_back();
+
+        // let c = &self.computed_;
+        // self.computed_ = match self.activation_function_ {
+        //     Activation::Relu => c.map(|x: f64| {Activation::relu_prime(x)}),
+        //     Activation::Sigmoid => c.map(|x: f64| {Activation::sigmoid_prime(x)}),
+        //     Activation::Tanx => todo!(),
+        //     Activation::Input => todo!(),
+        // };
+
+        let z = (&self.weights_matrix_).mul(&self.nodes_) + &self.bias_vector_;
+        self.computed_ = match self.activation_function_ {
+            Activation::Relu => z.map(|x: f64| {Activation::relu_prime(x)}),
+            Activation::Sigmoid => z.map(|x: f64| {Activation::sigmoid_prime(x)}),
             Activation::Tanx => todo!(),
             Activation::Input => todo!(),
         };
